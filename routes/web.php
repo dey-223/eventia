@@ -17,6 +17,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 Route::resource('events', EventsController::class);
+Route::get('/about', function () {
+    return Inertia::render('About');
+});
+Route::get('/contact', function () {
+    return Inertia::render('Contact');
+});
+Route::get('/princing', function () {
+    return Inertia::render('Pricing');
+});
+Route::get('/resources', function () {
+    return Inertia::render('Resources');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

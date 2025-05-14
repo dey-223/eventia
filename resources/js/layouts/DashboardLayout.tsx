@@ -100,22 +100,55 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     return (
         <div className="min-h-screen flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-end bg-white px-5 py-2 border-b">
-                <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMobileSidebarOpen(true)}>
-                    <Menu />
-                </Button>
-                <div className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    <span>{user?.name}</span>
+            <header className="bg-white border-b border-gray-200 py-3 px-4 md:px-6 fixed top-0 left-0 right-0 z-30">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                        <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={() => setIsMobileSidebarOpen(true)}>
+                            <Menu />
+                        </Button>
+                        <Link href="/" className="text-xl font-bold text-blue-600 mr-8">
+                            Eventtia
+                        </Link>
+
+                    </div>
+
+                    {user && (
+                        <div className="flex items-center space-x-4">
+                            <div className="relative group">
+                                <button className="flex items-center space-x-2 text-gray-600 hover:text-blue-600">
+                                    <User size={18} />
+                                    <span className="hidden md:inline">{user.name}</span>
+                                    <ChevronRight size={16} className="transform group-hover:rotate-90 transition-transform" />
+                                </button>
+                                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
+                                    <div className="px-4 py-2 border-b border-gray-100">
+                                        <p className="font-medium">{user.name}</p>
+                                        <p className="text-xs1
+                                         text-gray-500">{user.email}</p>
+                                    </div>
+                                    <Link href="/dashboard/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">
+                                        Account Settings
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                                    >
+                                        <LogOut size={16} className="mr-2" />
+                                        Log out
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
+            </header>
 
             {/* Layout */}
-            <div className="flex flex-1">
+            <div className="flex-grow flex pt-[4rem]"> {/* padding top to offset fixed header */}
                 {/* Sidebar */}
                 <div
                     className={cn(
-                        'bg-white border-r md:w-64 space-y-4 py-4 px-2 fixed inset-y-0 left-0 transform md:relative md:translate-x-0 z-50 transition-transform',
+                        'bg-white border-r md:w-64 space-y-4 py-4 px-2 fixed inset-y-0 left-0 transform md:relative md:translate-x-0',
                         {
                             '-translate-x-full': !isMobileSidebarOpen && !isSidebarOpen,
                             'translate-x-0': isMobileSidebarOpen || isSidebarOpen,
@@ -143,8 +176,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                         isSidebarOpen={isSidebarOpen}
                         currentUrl={url}
                         children={[
-                            { title: 'Liste des inscriptions', path: '/inscriptions', exact: true },
-                            { title: 'Ajouter une inscription', path: '/inscriptions/create', exact: true },
+                            { title: 'Liste des inscriptions', path: "/events/participants", exact: true },
+                            { title: 'Ajouter une inscription', path: "/inscriptions/create", exact: true },
                         ]}
                     />
                     <SidebarItem title="Statistiques" path="/statistiques" icon={BarChart} isSidebarOpen={isSidebarOpen} currentUrl={url} exact />
@@ -162,7 +195,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                 </div>
 
                 {/* Content */}
-                <main className="flex-1  px-4 py-6 bg-gray-50 min-h-screen">
+                <main className="flex-1 px-4 py-6 bg-gray-50 min-h-screen">
                     {children}
                 </main>
             </div>
@@ -170,4 +203,4 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     )
 }
 
-export default DashboardLayout
+export default DashboardLayout;

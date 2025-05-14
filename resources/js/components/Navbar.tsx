@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, User } from 'lucide-react';
+import { Menu, X, ChevronDown, User, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Navbar: React.FC = () => {
@@ -50,17 +50,10 @@ const Navbar: React.FC = () => {
 
                     {/* Desktop Navigation */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <div className="relative group">
-                            <button className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
-                                <span>Products</span>
-                                <ChevronDown size={16} />
-                            </button>
-                            <div className="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md p-2 hidden group-hover:block">
-                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Virtual Events</Link>
-                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">In-Person Events</Link>
-                                <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md">Hybrid Events</Link>
-                            </div>
-                        </div>
+                        <Link href="/events" className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
+                            <Calendar size={16} className="inline" />
+                            <span>Événements</span>
+                        </Link>
 
                         <div className="relative group">
                             <button className="flex items-center space-x-1 text-gray-600 hover:text-blue-600">
@@ -124,7 +117,7 @@ const Navbar: React.FC = () => {
                 {/* Mobile Menu */}
                 {isOpen && (
                     <div className="md:hidden mt-4 pb-4">
-                        <Link href="#" className="block py-2 text-gray-600 hover:text-blue-600">Products</Link>
+                        <Link href="/evnts" className="block py-2 text-gray-600 hover:text-blue-600">Events</Link>
                         <Link href="#" className="block py-2 text-gray-600 hover:text-blue-600">Solutions</Link>
                         <Link href="/pricing" className="block py-2 text-gray-600 hover:text-blue-600">Pricing</Link>
                         <Link href="/resources" className="block py-2 text-gray-600 hover:text-blue-600">Resources</Link>

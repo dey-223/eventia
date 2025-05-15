@@ -15,8 +15,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+    Route::get('/dashboard/CreateEvent', function(){
+        return Inertia::render('CreateEvent');
+    })->name('event.create');
 });
-Route::resource('events', EventsController::class);
+
 Route::get('/about', function () {
     return Inertia::render('About');
 });
@@ -29,6 +32,11 @@ Route::get('/princing', function () {
 Route::get('/resources', function () {
     return Inertia::render('Resources');
 });
+
+Route::get('/dashboard/eventList', function(){
+    return Inertia::render('EventList');
+})->name('eventList');
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

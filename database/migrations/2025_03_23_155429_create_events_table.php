@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('events', function (Blueprint $table) {
-            $table->id();
+            $table->id('id_event');
             $table->string('title');
             $table->text('description');
-            $table->dateTime('start_date');
+            $table->dateTime('start_date')->nullable();
             $table->dateTime('end_date');
             $table->string('location');
-            $table->string('image_url');
+            $table->string('image')->nullable();
             $table->string('event_type');
             $table->enum('statut', ['planifié', 'en cours', 'terminé', 'annulé']);
             $table->integer('max_participants')->nullable();
-            $table->foreignId('id_organisateur')->nullable()->constrained('utilisateurs', 'id_utilisateur')->onDelete('set null');
+            $table->foreignId('id_organisateur')->nullable()->constrained('users', 'id_user')->onDelete('set null');
             $table->timestamp('date_creation')->useCurrent();
             $table->timestamps();
         });

@@ -9,24 +9,25 @@ class Events extends Model
     
 
     protected $table = 'events';
-    protected $primaryKey = 'id_evenement';
+    protected $primaryKey = 'id_event';
     protected $fillable = [
-        'titre', 'description', 'date_debut', 'date_fin', 'lieu',
-        'adresse', 'capacite_max', 'type_evenement', 'statut', 'image_url', 'id_organisateur'
+        'title', 'description', 'start_date', 'end_date',
+        'location', 'image', 'event_type', 'statut', 'max_participants',
+        'id_organisateur', 'date_creation'
     ];
 
     public function organisateur()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_organisateur', 'id_utilisateur');
+        return $this->belongsTo(User::class, 'id_organisateur', 'id_user');
     }
 
     public function categories()
     {
-        return $this->belongsToMany(Categorie::class, 'evenement_categories', 'id_evenement', 'id_categorie');
+        return $this->belongsToMany(Categorie::class, 'evenement_categories', 'id_event', 'id_categorie');
     }
 
     public function inscriptions()
     {
-        return $this->hasMany(Inscription::class, 'id_evenement', 'id_evenement');
+        return $this->hasMany(Inscription::class, 'id_event', 'id_event');
     }
 }

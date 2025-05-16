@@ -93,30 +93,32 @@ export default function CreateEvent() {
             reader.readAsDataURL(file);
         }
     };
-
     const onSubmit = (values: FormValues) => {
         const formData = new FormData();
-
-        Object.entries(values).forEach(([key, value]) => {
-            if (value !== undefined) {
-                formData.append(key, value.toString());
-            }
-        });
-
+    
+        formData.append('title', values.title);
+        formData.append('description', values.description || '');
+        formData.append('start_date', new Date(values.date + ' ' + values.time).toISOString());
+        formData.append('end_date', new Date(values.date + ' ' + (values.endTime || values.time)).toISOString());
+        formData.append('location', values.location);
+        formData.append('max_participants', values.capacity.toString());
+        formData.append('event_type', values.category);
+        
         if (selectedImage) {
             formData.append('image', selectedImage);
         }
-
-        router.post('/events', formData, {
+    
+        router.post('/dashboard/events', formData, {
+            forceFormData: true,
             onSuccess: () => {
-                toast.success('Event created successfully!');
+                toast.success('Événement créé avec succès');
             },
             onError: () => {
-                toast.error('Failed to create event');
-            },
-            forceFormData: true,
+                toast.error("Erreur lors de la création de l'événement");
+            }
         });
     };
+
 
     return (
         <>

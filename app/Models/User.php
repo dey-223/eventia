@@ -24,7 +24,7 @@ class User extends Authenticatable
         'telephone',
         'role'
     ];
-
+    protected $primaryKey = 'id_user';
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -49,16 +49,18 @@ class User extends Authenticatable
     }
     public function evenementsOrganises()
     {
-        return $this->hasMany(Evenement::class, 'id_organisateur');
+        return $this->hasMany(Events::class, 'id_organisateur');
     }
 
     public function inscriptions()
     {
-        return $this->hasMany(Inscription::class, 'id_utilisateur');
+        return $this->hasMany(Inscription::class, 'id_user', 'id_user');
     }
 
+    
     public function billets()
     {
-        return $this->hasMany(Ticket::class, 'id_utilisateur');
+        return $this->hasManyThrough(Billet::class, Inscription::class, 'id_user', 'id_inscription', 'id_user', 'id_inscription');
+        // Un user a plusieurs billets via ses inscriptions
     }
 }

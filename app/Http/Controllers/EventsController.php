@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Events;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Carbon;
 class EventsController extends Controller
 
-{
+{ 
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        // $evenements = Evenement::with('categories')->get();
-
-        return Inertia::render('Events', [
-            // 'evenements' => $evenements
-            'events' => Events::all(),
-        ]);
-    }
+    // Dans EventsController.php
+public function index()
+{
+    $events = Events::orderBy('start_date', 'desc')->get();
+    
+    return Inertia::render('EventList', [
+        'events' => $events // Assurez-vous que c'est bien 'events' comme clé
+    ]);
+}
 
     /**
      * Show the form for creating a new resource.
@@ -35,41 +37,46 @@ class EventsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'titre' => 'required|string|max:200',
+      
+       
+        logger()->info('🎯 Event incoming', $request->all());
+          $validated= $request->validate([
+            'title' => 'required|string|max:200',
             'description' => 'nullable|string',
-            'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after_or_equal:date_debut',
-            'lieu' => 'required|string|max:200',
-            'adresse' => 'nullable|string',
-            'capacite_max' => 'nullable|integer|min:1',
-            'type_evenement' => 'nullable|string|max:100',
-            'statut' => 'required|in:planifié,en cours,terminé,annulé',
-            'image_url' => 'nullable|url',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'location' => 'required|string|max:200',
+           'event_type' => 'required|string|max:100',
+            'max_participants' => 'nullable|integer|min:1',
+        
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    
         ]);
+        $imagePath = null;
+         if ($request->hasFile('image')) { 
+        $imagePath = $request->file('image')->store('events', 'public');
+         }
+        $event= Events::create([
+        'title' => $validated['title'], // ou corrigez le nom dans le frontend
+        'description' => $validated['description'],
 
-        Events::create([
-            'titre' => $request->titre,
-            'description' => $request->description,
-            'date_debut' => $request->date_debut,
-            'date_fin' => $request->date_fin,
-            'lieu' => $request->lieu,
-            'adresse' => $request->adresse,
-            'capacite_max' => $request->capacite_max,
-            'type_evenement' => $request->type_evenement,
-            'statut' => $request->statut,
-            'image_url' => $request->image_url,
-            'id_organisateur' => Auth::id(),
-        ]);
+        'start_date' => Carbon::parse($validated['start_date'])->format('Y-m-d H:i:s'),
+        'end_date' => Carbon::parse($validated['end_date'])->format('Y-m-d H:i:s'),
+        'location' => $validated['location'],
+        'max_participants' => $validated['max_participants'],
+        'event_type' => $validated['event_type'],
+        'statut' => 'planifié',
+        'image' => $imagePath,
+        'id_organisateur' => Auth::id(),
+    ]);
+    return redirect()->route('event.index')->with('success', 'Événement créé avec succès')->with('newEvent', $event->fresh());
 
-        return redirect()->route('events.index')->with('success', 'Événement créé avec succès !');
-    }
-
+}
     /**
      * Display the specified resource.
      */
     public function show($id)
-    {
+    { 
         return Inertia::render('Evenements/Show', [
             'evenement' => $evenement->load('categories')
         ]);
@@ -79,7 +86,7 @@ class EventsController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(Events $events)
-    {
+    { 
         return Inertia::render('Evenements/Edit', [
             'evenement' => $evenement
         ]);
@@ -89,8 +96,8 @@ class EventsController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-    {
-        if (Auth::id() !== $evenement->id_organisateur) {
+    { 
+        if (Auth::id() !== $evenement->id_organisateur) { 
             return redirect()->route('evenements.index')->with('error', 'Accès non autorisé');
         }
 
@@ -116,15 +123,14 @@ class EventsController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy($id)
-    {
-        if (Auth::id() !== $evenement->id_organisateur) {
+    { 
+        if (Auth::id() !== $evenement->id_organisateur) { 
             return redirect()->route('evenements.index')->with('error', 'Accès non autorisé');
         }
 
         $evenement->delete();
 
         return redirect()->route('evenements.index')->with('success', 'Événement supprimé avec succès !');
-    }
+        }
     
-    
-}
+ }

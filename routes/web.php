@@ -15,10 +15,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+    
+// Route::get('/dashboard/eventList', function(){
+//     return Inertia::render('EventList');
+// })->name('eventList');
+Route::get('/dashboard/eventList', [EventsController::class, 'index'])->name('event.index');
+
     Route::get('/dashboard/CreateEvent', function(){
         return Inertia::render('CreateEvent');
     })->name('event.create');
+    Route::post('/dashboard/events', [EventsController::class, 'store'])->name('event.store');
+
+    Route::delete('/dashboard/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
 });
+Route::get('/dashboard/editEvent', function () {
+    return Inertia::render('EventEdit');
+})->name('event.edit');
 Route::get('/events', function(){
     return Inertia::render('Events');
 })->name('events');
@@ -43,19 +55,19 @@ Route::get('/events/participants', function () {
     return Inertia::render('EventParticipants');
 })->name('event.participants');
 
-Route::get('/dashboard/eventList', function(){
-    return Inertia::render('EventList');
-})->name('eventList');
+// Route::get('/dashboard/eventList', function(){
+//     return Inertia::render('EventList');
+// })->name('eventList');
 
 Route::get('/dashboard/CreateEvent', function(){
     return Inertia::render('CreateEvent');
 })->name('event.create');
 
+
+
 Route::get('/dashboard/eventDetail/', function () {
     return Inertia::render('EventDetail');
 })->name('event.detail');
-Route::get('/dashboard/editEvent', function () {
-    return Inertia::render('EventEdit');
-})->name('event.edit');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

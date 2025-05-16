@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { PageProps } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -37,94 +38,99 @@ import {
 interface Event {
     id: number;
     title: string;
-    date: string;
-    time: string;
+    start_date: string;
+    end_date: string;
     location: string;
-    capacity: number;
-    registered: number;
-    status: 'upcoming' | 'ongoing' | 'past' | 'cancelled';
-    category: string;
+    max_participants: number;
+    registered?: number;
+    statut: string;
+    event_type: string;
+    is_mock?: boolean;
+    id_organisateur?: number | null;
 }
-
+interface CustomPageProps extends PageProps {
+    events: Event[];
+    [key: string]: unknown;
+}
 const EventsList: React.FC = () => {
-    // Données statiques de démonstration
-    const [events, setEvents] = useState<Event[]>([
-        {
-            id: 1,
-            title: 'Conférence Annuelle Tech',
-            date: '2025-06-15',
-            time: '09:00',
-            location: 'Paris, France',
-            capacity: 500,
-            registered: 342,
-            status: 'upcoming',
-            category: 'conférence'
-        },
-        {
-            id: 2,
-            title: 'Rencontre Développeurs',
-            date: '2025-07-10',
-            time: '18:30',
-            location: 'En ligne',
-            capacity: 100,
-            registered: 78,
-            status: 'upcoming',
-            category: 'networking'
-        },
-        {
-            id: 3,
-            title: 'Atelier Design Produit',
-            date: '2025-05-22',
-            time: '10:00',
-            location: 'Lyon, France',
-            capacity: 50,
-            registered: 50,
-            status: 'ongoing',
-            category: 'workshop'
-        },
-        {
-            id: 4,
-            title: 'Webinaire Marketing',
-            date: '2025-01-05',
-            time: '15:00',
-            location: 'En ligne',
-            capacity: 200,
-            registered: 143,
-            status: 'past',
-            category: 'séminaire'
-        },
-        {
-            id: 5,
-            title: 'Événement Annulé',
-            date: '2025-03-18',
-            time: '14:00',
-            location: 'Marseille, France',
-            capacity: 150,
-            registered: 45,
-            status: 'cancelled',
-            category: 'divers'
-        }
-    ]);
-
+    const { props } = usePage<CustomPageProps>();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const allEvents = [...
+        props.events || [],
+
+    {
+        id: -1,
+        title: 'Conférence Annuelle Tech 2025',
+        start_date: '2025-06-15T09:00:00',
+        end_date: '2025-06-15T17:00:00',
+        location: 'Paris, France',
+        max_participants: 500,
+        registered: 342,
+        statut: 'planifié',
+        event_type: 'conférence',
+        is_mock: true,
+        id_organisateur: null
+    },
+    {
+        id: -2,
+        title: 'Atelier Design ',
+        start_date: '2025-07-10T14:00:00',
+        end_date: '2025-07-10T18:00:00',
+        location: 'Lyon, France',
+        max_participants: 50,
+        registered: 35,
+        statut: 'en_cours',
+        event_type: 'workshop',
+        is_mock: true,
+        id_organisateur: null
+
+    }
+    ];
+
+
+
 
     const handleDelete = (id: number) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-            setEvents(events.filter(event => event.id !== id));
-            toast.success('Événement supprimé avec succès');
+            if (id < 0) {
+                // Suppression d'un mock - filtre directement le tableau allEvents
+                toast.success('Exemple supprimé');
+            } else {
+                // Suppression d'un événement réel
+                router.delete(`/dashboard/events/${id}`, {
+                    onSuccess: () => {
+                        toast.success('Événement supprimé avec succès');
+                        // Inertia va automatiquement recharger les props.events
+                    },
+                    onError: () => {
+                        toast.error('Erreur lors de la suppression');
+                    }
+                });
+            }
         }
     };
 
-    // Simuler l'exportation des événements
     const handleExport = () => {
         toast.success('Exportation des événements réussie (simulation)');
     };
 
-    const filteredEvents = events.filter(event => {
+    const normalizeStatus = (statut: string) => {
+        const statusMap: Record<string, string> = {
+            'planifié': 'upcoming',
+            'en_cours': 'ongoing',
+            'terminé': 'past',
+            'annulé': 'cancelled'
+        };
+        return statusMap[statut] || statut;
+    };
+
+    const filteredEvents = allEvents.filter(event => {
         const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             event.location.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || event.status === statusFilter;
+
+        const normalizedStatus = normalizeStatus(event.statut);
+        const matchesStatus = statusFilter === 'all' || normalizedStatus === statusFilter;
 
         return matchesSearch && matchesStatus;
     });
@@ -136,12 +142,22 @@ const EventsList: React.FC = () => {
         cancelled: 'bg-red-100 text-red-800'
     };
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR');
+    };
+
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold">Mes Événements</h1>
-                    <p className="text-gray-500">Gérez et surveillez vos événements</p>
+                    <h1 className="text-2xl font-bold">Tous les Événements</h1>
+                    <p className="text-gray-500">Liste complète des événements</p>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleExport}>
@@ -207,27 +223,34 @@ const EventsList: React.FC = () => {
                             <TableBody>
                                 {filteredEvents.length > 0 ? (
                                     filteredEvents.map(event => (
-                                        <TableRow key={event.id}>
-                                            <TableCell className="font-medium">{event.title}</TableCell>
+                                        <TableRow key={event.id} className={event.is_mock ? 'bg-gray-50' : ''}>
+                                            <TableCell className="font-medium">
+                                                {event.title}
+                                                {event.is_mock && (
+                                                    <Badge variant="outline" className="ml-2">
+                                                        Exemple
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
                                             <TableCell>
-                                                {new Date(event.date).toLocaleDateString('fr-FR')} à {event.time}
+                                                {formatDate(event.start_date)} à {formatTime(event.start_date)}
                                             </TableCell>
                                             <TableCell>{event.location}</TableCell>
                                             <TableCell>
-                                                {event.registered}/{event.capacity}
+                                                {event.registered || 0}/{event.max_participants}
                                                 <div className="w-full h-1.5 bg-gray-200 rounded-full mt-1">
                                                     <div
                                                         className="h-full bg-blue-600 rounded-full"
-                                                        style={{ width: `${(event.registered / event.capacity) * 100}%` }}
+                                                        style={{ width: `${((event.registered || 0) / event.max_participants) * 100}%` }}
                                                     ></div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge className={statusColors[event.status]}>
-                                                    {event.status === 'upcoming' && 'À venir'}
-                                                    {event.status === 'ongoing' && 'En cours'}
-                                                    {event.status === 'past' && 'Passé'}
-                                                    {event.status === 'cancelled' && 'Annulé'}
+                                                <Badge className={statusColors[normalizeStatus(event.statut)]}>
+                                                    {event.statut === 'planifié' && 'À venir'}
+                                                    {event.statut === 'en_cours' && 'En cours'}
+                                                    {event.statut === 'terminé' && 'Terminé'}
+                                                    {event.statut === 'annulé' && 'Annulé'}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
@@ -241,7 +264,7 @@ const EventsList: React.FC = () => {
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>
-                                                            <Link href={`/dashboard/eventDetail/`} className="flex w-full items-center">
+                                                            <Link href={`/dashboard/eventDetail/${event.id}`} className="flex w-full items-center">
                                                                 <Eye className="mr-2 h-4 w-4" /> Voir détails
                                                             </Link>
                                                         </DropdownMenuItem>
@@ -269,9 +292,9 @@ const EventsList: React.FC = () => {
                                             <div className="flex flex-col items-center justify-center text-gray-500">
                                                 <Calendar className="h-8 w-8 mb-2" />
                                                 <span>Aucun événement trouvé</span>
-                                                <Link href="/dashboard/events/create">
+                                                <Link href="/dashboard/CreateEvent">
                                                     <Button variant="link" className="mt-2">
-                                                        Créer votre premier événement
+                                                        Créer un nouvel événement
                                                     </Button>
                                                 </Link>
                                             </div>
@@ -286,6 +309,7 @@ const EventsList: React.FC = () => {
         </div>
     );
 };
+
 EventsList.layout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default EventsList;

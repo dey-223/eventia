@@ -12,7 +12,7 @@ class Categories extends Model
 
     public function evenements()
     {
-        return $this->belongsToMany(Evenement::class, 'evenement_categories', 'id_categorie', 'id_evenement');
+        return $this->belongsToMany(Events::class, 'evenement_categories', 'id_categorie', 'id_event');
     }
 }
 

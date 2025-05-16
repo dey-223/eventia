@@ -17,6 +17,11 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    
+     protected $primaryKey = 'id_user'; // ← Spécifie la clé primaire
+
+     public $incrementing = true; // ← optionnel, mais conseillé si c'est un entier auto-incrémenté
+     protected $keyType = 'int';
     protected $fillable = [
         'name',
         'email',
@@ -49,16 +54,17 @@ class User extends Authenticatable
     }
     public function evenementsOrganises()
     {
-        return $this->hasMany(Evenement::class, 'id_organisateur');
+        return $this->hasMany(Evenement::class, 'id_organisateur','id_user');
     }
 
     public function inscriptions()
     {
-        return $this->hasMany(Inscription::class, 'id_utilisateur');
+        return $this->hasMany(Inscription::class, 'id_user','id_user');
     }
 
     public function billets()
     {
-        return $this->hasMany(Ticket::class, 'id_utilisateur');
+        return $this->hasManyThrough(Billet::class, Inscription::class, 'id_user', 'id_inscription', 'id_user', 'id_inscription');
+        // Un user a plusieurs billets via ses inscriptions
     }
 }

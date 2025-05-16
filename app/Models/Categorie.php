@@ -10,9 +10,9 @@ class Categories extends Model
     protected $primaryKey = 'id_categorie';
     protected $fillable = ['nom_categorie', 'description'];
 
-    public function evenements()
+    public function evenement()
     {
-        return $this->belongsToMany(Evenement::class, 'evenement_categories', 'id_categorie', 'id_evenement');
+        return $this->belongsToMany(Event::class, 'evenement_categories', 'id_categorie', 'id_evenement');
     }
 }
 

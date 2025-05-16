@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Events;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -18,7 +18,7 @@ class EventsController extends Controller
 
         return Inertia::render('Events', [
             // 'evenements' => $evenements
-            'events' => Events::all(),
+            'events' => Event::all(),
         ]);
     }
 
@@ -36,28 +36,35 @@ class EventsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'titre' => 'required|string|max:200',
+            'title' => 'required|string|max:200',
             'description' => 'nullable|string',
-            'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after_or_equal:date_debut',
-            'lieu' => 'required|string|max:200',
-            'adresse' => 'nullable|string',
-            'capacite_max' => 'nullable|integer|min:1',
-            'type_evenement' => 'nullable|string|max:100',
-            'statut' => 'required|in:planifié,en cours,terminé,annulé',
-            'image_url' => 'nullable|url',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:date_debut',
+            'location' => 'required|string|max:200',
+            // 'adresse' => 'nullable|string',
+            'max_participants' => 'nullable|integer|min:1',
+            'event_type' => 'nullable|string|max:100',
+            'category' => 'required|string',
+            'statut' => 'planifié',
+            'ticketPrice' => 'required|numeric|min:0',
+            'image_url' => 'nullable|url'
         ]);
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('events', 'public');
+            $validated['image'] = $path;
+        }
 
-        Events::create([
-            'titre' => $request->titre,
+        Event::create([
+            'title' => $request->titre,
             'description' => $request->description,
-            'date_debut' => $request->date_debut,
-            'date_fin' => $request->date_fin,
-            'lieu' => $request->lieu,
-            'adresse' => $request->adresse,
-            'capacite_max' => $request->capacite_max,
-            'type_evenement' => $request->type_evenement,
-            'statut' => $request->statut,
+            'start_date' => $request->date_debut,
+            'end_date' => $request->date_fin,
+            'location' => $request->lieu,
+            // 'adresse' => $request->adresse,
+            'max_participants' => $request->capacite_max,
+            'event_type' => $request->type_evenement,
+            'statut' => 'planifié',
+            'ticketPrice' => $request->ticketPrice,
             'image_url' => $request->image_url,
             'id_organisateur' => Auth::id(),
         ]);
@@ -68,17 +75,23 @@ class EventsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        return Inertia::render('Evenements/Show', [
-            'evenement' => $evenement->load('categories')
-        ]);
-    }
+    // public function show($id)
+    // {
+    //     return Inertia::render('Evenements/Show', [
+    //         'evenement' => $evenement->load('categories')
+    //     ]);
+    // }
+    public function show(Events $evenement)
+{
+    return Inertia::render('Evenements/Show', [
+        'evenement' => $evenement->load('categories'),
+    ]);
+}
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Events $events)
+    public function edit(Events $evenement)
     {
         return Inertia::render('Evenements/Edit', [
             'evenement' => $evenement
@@ -88,7 +101,7 @@ class EventsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id,Events $evenement)
     {
         if (Auth::id() !== $evenement->id_organisateur) {
             return redirect()->route('evenements.index')->with('error', 'Accès non autorisé');
@@ -115,7 +128,7 @@ class EventsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id,Events $evenement)
     {
         if (Auth::id() !== $evenement->id_organisateur) {
             return redirect()->route('evenements.index')->with('error', 'Accès non autorisé');

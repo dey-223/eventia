@@ -147,7 +147,7 @@ const EventsList: React.FC = () => {
                     <Button variant="outline" onClick={handleExport}>
                         <Download className="mr-2 h-4 w-4" /> Exporter
                     </Button>
-                    <Link href="/dashbord/CreateEvent">
+                    <Link href="/dashboard/CreateEvent">
                         <Button className="bg-blue-600 hover:bg-blue-700">
                             <Plus className="mr-2 h-4 w-4" /> Créer un Événement
                         </Button>
@@ -241,7 +241,7 @@ const EventsList: React.FC = () => {
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>
-                                                            <Link href={`/dashboard/events/${event.id}`} className="flex w-full items-center">
+                                                            <Link href={`/dashboard/eventDetail/`} className="flex w-full items-center">
                                                                 <Eye className="mr-2 h-4 w-4" /> Voir détails
                                                             </Link>
                                                         </DropdownMenuItem>

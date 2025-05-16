@@ -198,7 +198,7 @@ const dashboard: React.FC = () => {
                                     <Progress value={(event.registered / event.capacity) * 100} className="h-1" />
                                 </CardContent>
                                 <div className="px-6 pb-4">
-                                    <Link href={`/dashboard/events/${event.id}`}>
+                                    <Link href="/dashboard/eventDetail/">
                                         <Button variant="outline" size="sm" className="w-full">
                                             View Details <ArrowRight className="h-3.5 w-3.5 ml-1" />
                                         </Button>
@@ -247,8 +247,64 @@ const dashboard: React.FC = () => {
                     </div>
                 </TabsContent>
             </Tabs>
+            {/* Recent Activity */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recent Activity</CardTitle>
+                    <CardDescription>Latest actions on your account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <div className="flex">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                <Users className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="font-medium">New registration</p>
+                                <p className="text-sm text-gray-500">Emily Davis registered for Annual Tech Conference</p>
+                                <div className="flex items-center mt-1 text-xs text-gray-400">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    <span>2 hours ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex">
+                            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                                <Calendar className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                                <p className="font-medium">Event created</p>
+                                <p className="text-sm text-gray-500">You created Developer Meetup event</p>
+                                <div className="flex items-center mt-1 text-xs text-gray-400">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    <span>1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex">
+                            <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                                <Ticket className="h-5 w-5 text-amber-600" />
+                            </div>
+                            <div>
+                                <p className="font-medium">Payment received</p>
+                                <p className="text-sm text-gray-500">$299.99 payment for Annual Tech Conference</p>
+                                <div className="flex items-center mt-1 text-xs text-gray-400">
+                                    <Clock className="h-3 w-3 mr-1" />
+                                    <span>2 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };
+
+
+
+
 dashboard.layout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 export default dashboard;

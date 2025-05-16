@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('inscriptions', function (Blueprint $table) {
             $table->id('id_inscription');
-            $table->foreignId('id_evenement')->constrained('evenements', 'id_evenement')->onDelete('cascade');
+            $table->foreignId('id_evenement')->constrained('events', 'id_evenement')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users', 'id_user')->onDelete('cascade');
             $table->timestamp('date_inscription')->useCurrent();
             $table->enum('statut', ['confirmé', 'en attente', 'annulé']);

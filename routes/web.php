@@ -11,6 +11,7 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -34,6 +35,10 @@ Route::get('/dashboard/editEvent', function () {
 Route::get('/events', function(){
     return Inertia::render('Events');
 })->name('events');
+// 
+Route::get('/events', [EventsController::class, 'showEvents']);
+// ajouter par moi recement
+
 
 Route::get('/about', function () {
     return Inertia::render('About');
@@ -47,9 +52,18 @@ Route::get('/princing', function () {
 Route::get('/resources', function () {
     return Inertia::render('Resources');
 });
-Route::get('/events/inscriptions', function () {
-    return Inertia::render('EventSignUp');
-})->name('event.inscription');
+// Route::get('/events/inscriptions', function () {
+//     return Inertia::render('EventSignup');
+// })->name('event.inscription');
+// Route::get('/events/inscriptions/{id}', function ($id) {
+//     return Inertia::render('EventSignup', [
+//         'id' => (int) $id
+//     ]);
+// })->name('event.inscription');
+
+
+ Route::get('/events/inscriptions/{id}', [EventsController::class, 'showRegistrationForm'])->name('events.inscriptions');
+
 
 Route::get('/events/participants', function () {
     return Inertia::render('EventParticipants');

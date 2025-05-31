@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use Inertia\Response;
 use App\Models\Events;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+
 class EventsController extends Controller
 
 { 
@@ -23,7 +25,14 @@ public function index()
         'events' => $events // Assurez-vous que c'est bien 'events' comme clé
     ]);
 }
+public function showEvents(): Response
+{
+    $events = Events::all();
 
+    return Inertia::render('Events', [
+        'events' => $events
+    ]);
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -82,6 +91,8 @@ public function index()
         ]);
     }
 
+
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -133,4 +144,16 @@ public function index()
         return redirect()->route('evenements.index')->with('success', 'Événement supprimé avec succès !');
         }
     
+
+
+
+//     public function showRegistrationForm($id)
+//     {
+//           $event = Events::findOrFail($id);
+
+//         return Inertia::render('EventSignUp', [
+//             'event' => $event
+//          ]);
+//    }
+
  }

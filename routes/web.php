@@ -29,6 +29,8 @@ Route::get('/dashboard/eventList', [EventsController::class, 'index'])->name('ev
 
     Route::delete('/dashboard/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
 });
+
+
 Route::get('/dashboard/editEvent', function () {
     return Inertia::render('EventEdit');
 })->name('event.edit');
@@ -62,7 +64,9 @@ Route::get('/resources', function () {
 // })->name('event.inscription');
 
 
- Route::get('/events/inscriptions/{id}', [EventsController::class, 'showRegistrationForm'])->name('events.inscriptions');
+ Route::get('/events/inscriptions/{id}', 
+ [EventsController::class, 'showRegistrationForm'])
+ ->name('events.inscriptions');
 
 
 Route::get('/events/participants', function () {

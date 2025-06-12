@@ -248,7 +248,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 interface Event {
-  id: number;
+  id_event: number;
   title: string;
   date: string;
   location: string;
@@ -277,7 +277,7 @@ const Events = () => {
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.location.toLowerCase().includes(searchTerm.toLowerCase());
-
+console.log("event", event);
     const matchesCategory =
       categoryFilter === 'all' || event.category.toLowerCase() === categoryFilter.toLowerCase();
 
@@ -291,6 +291,7 @@ const Events = () => {
     }
     return false;
   };
+  
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -342,7 +343,7 @@ const Events = () => {
           {filteredEvents.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map((event) => (
-                <Card key={event.id} className="flex flex-col">
+                <Card key={event.id_event} className="flex flex-col">
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-xl">{event.title}</CardTitle>
@@ -372,14 +373,18 @@ const Events = () => {
                     <Link href="/events/participants" className="flex-1">
                       <Button variant="outline" className="w-full">Voir les participants</Button>
                     </Link>
-                    {checkIfRegistered(event.id) ? (
+                    {checkIfRegistered(event.id_event) ? (
                       <Button className="w-full flex-1" variant="secondary" disabled>
                         Déjà inscrit
                       </Button>
+
                     ) : (
-                      <Link href={`/events/inscriptions/${event.id}`} className="flex-1">
+                      
+                      <Link href={`/events/inscriptions/${event.id_event}`} className="flex-1">
                         <Button className="w-full">S'inscrire</Button>
                       </Link>
+                      
+
                       
                     )}
                   </CardFooter>

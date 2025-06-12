@@ -309,7 +309,7 @@
 // export default EventSignup
 
 import { usePage, router, Link } from '@inertiajs/react' // Import Link
-import route from 'ziggy-js'//rajouter par moi
+import { route } from 'ziggy-js'//rajouter par moi
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -341,7 +341,7 @@ import { ArrowLeft, Calendar, MapPin, Users } from 'lucide-react'
 
 // Interface pour l'objet Event venant de Laravel
 interface Event {
-  id: number
+  id_event: number
   title: string
   date: string // Laravel enverra probablement une chaîne ISO 8601
   location: string
@@ -438,7 +438,7 @@ const EventSignup = () => {
     // Utilise router.post pour envoyer les données à Laravel
     // Assure-toi d'avoir la route nommée 'events.register' dans Laravel
     // ou utilise le chemin direct : `/events/${event.id}/register`
-    router.post(route('events.register', { event: event.id }), values, {
+    router.post(route('events.register', { event: event.id_event }), values, {
       onSuccess: () => {
         // La redirection est gérée par Laravel (Redirect::route(...)).
         // Le message flash de succès sera affiché par l'useEffect ci-dessus.
@@ -639,7 +639,7 @@ const EventSignup = () => {
             </CardContent>
             <CardFooter>
                 {/* Utiliser le composant Link d'Inertia */}
-              <Link href={route('events.participants', { event: event.id })} className="w-full">
+              <Link href={route('event.participants', { event: event.id_event })} className="w-full">
                 <Button variant="outline" className="w-full">
                   Voir les participants
                 </Button>

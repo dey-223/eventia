@@ -151,9 +151,19 @@ public function showEvents(): Response
 //     {
 //           $event = Events::findOrFail($id);
 
+//           logger()->info("Event found: ", [$event]);
+
+
 //         return Inertia::render('EventSignUp', [
 //             'event' => $event
 //          ]);
 //    }
+
+public function showRegistrationForm($id)
+{
+    \Log::info("Tentative d'accès à l'événement ID: " . $id);
+    $event = Events::findOrFail($id); // Lance une 404 si l'événement n'existe pas
+    return Inertia::render('EventSignUp', ['event' => $event]);
+}
 
  }

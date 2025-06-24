@@ -68,10 +68,20 @@ Route::get('/resources', function () {
  [EventsController::class, 'showRegistrationForm'])
  ->name('events.inscriptions');
 
+ Route::post(
+    '/events/{id}/register',
+    [EventsController::class, 'register']
+)->name('events.register');
 
-Route::get('/events/participants', function () {
-    return Inertia::render('EventParticipants');
-})->name('event.participants');
+Route::get(
+  '/events/{event}/participants',
+  [EventsController::class, 'showParticipants']
+)->name('event.participants');
+
+
+// Route::get('/events/participants', function () {
+//     return Inertia::render('EventParticipants');
+// })->name('event.participants');
 
 // Route::get('/dashboard/eventList', function(){
 //     return Inertia::render('EventList');

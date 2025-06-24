@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use App\Models\Inscription;
 
 class EventsController extends Controller
 
@@ -166,4 +167,59 @@ public function showRegistrationForm($id)
     return Inertia::render('EventSignUp', ['event' => $event]);
 }
 
+public function register(Request $request, $id)
+{
+    // 1. Valider les données envoyées (ici que l'utilisateur accepte les CGU)
+    $request->validate([
+        'name'        => 'required|string|min:2',
+        'email'       => 'required|email',
+        'acceptTerms' => 'accepted',
+        // ajoutez d'autres règles si besoin
+    ]);
+
+    // 2. Vérifier qu’il n’est pas déjà inscrit
+    if (Inscription::where('id_event', $id)->where('id_user', Auth::id())->exists()) {
+        return back()->withErrors(['already_registered' => 'Vous êtes déjà inscrit à cet événement.']);
+    }
+
+    // 3. Créer l’inscription
+    Inscription::create([
+        'id_event'       => $id,
+        'id_user'        => Auth::id(),
+        'statut'         => 'confirmé',
+        'commentaire'    => $request->input('commentaire'),
+    ]);
+
+    // 4. Rediriger vers la liste des participants avec message de succès
+    return redirect()
+        ->route('event.participants', ['event' => $id])
+        ->with('success', 'Inscription réussie !');
+}
+
+
+
+public function showParticipants($event)
+{
+    $event = Events::withCount('inscriptions')->findOrFail($event);
+    $participants = Inscription::with('utilisateur')
+        ->where('id_event', $event->id_event)
+        ->get()
+        ->map(fn($insc) => [
+            'id'               => $insc->id_inscription,
+            'name'             => $insc->utilisateur->name,
+            'email'            => $insc->utilisateur->email,
+            'registrationDate' => $insc->date_inscription,
+            'company'          => $insc->commentaire, 
+            'attended'         => $insc->statut === 'confirmé',
+        ]);
+
+    return Inertia::render('EventParticipants', [
+        'event'        => $event,
+        'participants' => $participants,
+    ]);
+}
+
+
  }
+
+ 

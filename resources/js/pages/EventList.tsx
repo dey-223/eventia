@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { PageProps } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
@@ -48,39 +48,28 @@ interface Event {
     is_mock?: boolean;
     id_organisateur?: number | null;
 }
-interface CustomPageProps extends PageProps {
+interface CustomPageProps {
     events: Event[];
     [key: string]: unknown;
 }
+
 const EventsList: React.FC = () => {
-    const { props } = usePage<CustomPageProps>();
+    const { events } = usePage<CustomPageProps>().props;
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-    const allEvents = [...
-        props.events || [],
-        // Ajout de quelques événements  mock pour la démonstration
-    ];
 
-
-
+    const allEvents = [...events];
 
     const handleDelete = (id: number) => {
-        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
-            if (id < 0) {
-                // Suppression d'un mock - filtre directement le tableau allEvents
-                toast.success('Exemple supprimé');
-            } else {
-                // Suppression d'un événement réel
-                router.delete(`/dashboard/events/${id}`, {
-                    onSuccess: () => {
-                        toast.success('Événement supprimé avec succès');
-                        // Inertia va automatiquement recharger les props.events
-                    },
-                    onError: () => {
-                        toast.error('Erreur lors de la suppression');
-                    }
-                });
-            }
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+            router.delete(route('events.destroy', { id }), {
+                onSuccess: () => {
+                    toast.success('Événement supprimé avec succès');
+                },
+                onError: () => {
+                    toast.error('Erreur lors de la suppression');
+                }
+            });
         }
     };
 
@@ -108,7 +97,7 @@ const EventsList: React.FC = () => {
         return matchesSearch && matchesStatus;
     });
 
-    const statusColors = {
+    const statusColors: Record<string, string> = {
         upcoming: 'bg-green-100 text-green-800',
         ongoing: 'bg-blue-100 text-blue-800',
         past: 'bg-gray-100 text-gray-800',
@@ -116,13 +105,11 @@ const EventsList: React.FC = () => {
     };
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR');
+        return new Date(dateString).toLocaleDateString('fr-FR');
     };
 
     const formatTime = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     };
 
     return (
@@ -136,7 +123,7 @@ const EventsList: React.FC = () => {
                     <Button variant="outline" onClick={handleExport}>
                         <Download className="mr-2 h-4 w-4" /> Exporter
                     </Button>
-                    <Link href="/dashboard/CreateEvent">
+                    <Link href={route('event.create')}>
                         <Button className="bg-blue-600 hover:bg-blue-700">
                             <Plus className="mr-2 h-4 w-4" /> Créer un Événement
                         </Button>
@@ -157,10 +144,7 @@ const EventsList: React.FC = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Select
-                            value={statusFilter}
-                            onValueChange={setStatusFilter}
-                        >
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger className="w-[180px]">
                                 <Filter className="mr-2 h-4 w-4" />
                                 <SelectValue placeholder="Filtrer par statut" />
@@ -180,12 +164,7 @@ const EventsList: React.FC = () => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[250px]">
-                                        <div className="flex items-center space-x-1">
-                                            Nom de l'événement
-                                            <ArrowUpDown className="h-4 w-4" />
-                                        </div>
-                                    </TableHead>
+                                    <TableHead className="w-[250px]">Nom de l'événement</TableHead>
                                     <TableHead>Date & Heure</TableHead>
                                     <TableHead>Lieu</TableHead>
                                     <TableHead>Capacité</TableHead>
@@ -197,61 +176,35 @@ const EventsList: React.FC = () => {
                                 {filteredEvents.length > 0 ? (
                                     filteredEvents.map(event => (
                                         <TableRow key={event.id} className={event.is_mock ? 'bg-gray-50' : ''}>
-                                            <TableCell className="font-medium">
-                                                {event.title}
-                                                {event.is_mock && (
-                                                    <Badge variant="outline" className="ml-2">
-                                                        Exemple
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatDate(event.start_date)} à {formatTime(event.start_date)}
-                                            </TableCell>
+                                            <TableCell className="font-medium">{event.title}{event.is_mock && <Badge variant="outline" className="ml-2">Exemple</Badge>}</TableCell>
+                                            <TableCell>{formatDate(event.start_date)} à {formatTime(event.start_date)}</TableCell>
                                             <TableCell>{event.location}</TableCell>
                                             <TableCell>
-                                                {event.registered || 0}/{event.max_participants}
+                                                {(event.registered || 0)}/{event.max_participants}
                                                 <div className="w-full h-1.5 bg-gray-200 rounded-full mt-1">
-                                                    <div
-                                                        className="h-full bg-blue-600 rounded-full"
-                                                        style={{ width: `${((event.registered || 0) / event.max_participants) * 100}%` }}
-                                                    ></div>
+                                                    <div className="h-full bg-blue-600 rounded-full" style={{ width: `${((event.registered || 0) / event.max_participants) * 100}%` }}></div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <Badge className={statusColors[normalizeStatus(event.statut)]}>
-                                                    {event.statut === 'planifié' && 'À venir'}
-                                                    {event.statut === 'en_cours' && 'En cours'}
-                                                    {event.statut === 'terminé' && 'Terminé'}
-                                                    {event.statut === 'annulé' && 'Annulé'}
-                                                </Badge>
-                                            </TableCell>
+                                            <TableCell><Badge className={statusColors[normalizeStatus(event.statut)]}>{event.statut === 'planifié' ? 'À venir' : event.statut === 'en_cours' ? 'En cours' : event.statut === 'terminé' ? 'Terminé' : 'Annulé'}</Badge></TableCell>
                                             <TableCell>
                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="sm">
-                                                            Actions
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuTrigger asChild><Button variant="ghost" size="sm">Actions</Button></DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>
-                                                            <Link href={`/dashboard/eventDetail/${event.id}`} className="flex w-full items-center">
-                                                                <Eye className="mr-2 h-4 w-4" /> Voir détails
+                                                            <Link href={route('event.detail', { event: event.id })} className="flex items-center">
+                                                                <Eye className="mr-2 h-4 w-4" />Voir détails
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
-                                                            <Link href={`/dashboard/events/${event.id}/edit`} className="flex w-full items-center">
-                                                                <Pencil className="mr-2 h-4 w-4" /> Modifier
+                                                            <Link href={route('event.edit', { event: event.id })} className="flex items-center">
+                                                                <Pencil className="mr-2 h-4 w-4" />Modifier
                                                             </Link>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem className="text-red-600">
-                                                            <button
-                                                                className="flex w-full items-center"
-                                                                onClick={() => handleDelete(event.id)}
-                                                            >
-                                                                <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+                                                            <button onClick={() => handleDelete(event.id)} className="flex items-center">
+                                                                <Trash2 className="mr-2 h-4 w-4" />Supprimer
                                                             </button>
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -265,11 +218,7 @@ const EventsList: React.FC = () => {
                                             <div className="flex flex-col items-center justify-center text-gray-500">
                                                 <Calendar className="h-8 w-8 mb-2" />
                                                 <span>Aucun événement trouvé</span>
-                                                <Link href="/dashboard/CreateEvent">
-                                                    <Button variant="link" className="mt-2">
-                                                        Créer un nouvel événement
-                                                    </Button>
-                                                </Link>
+                                                <Link href={route('event.create')}><Button variant="link" className="mt-2">Créer un nouvel événement</Button></Link>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -283,6 +232,6 @@ const EventsList: React.FC = () => {
     );
 };
 
-EventsList.layout = (page) => <DashboardLayout>{page}</DashboardLayout>;
+EventsList.layout = page => <DashboardLayout>{page}</DashboardLayout>;
 
 export default EventsList;

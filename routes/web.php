@@ -4,6 +4,7 @@ use app\Http\Models\Events;
 use app\Http\Controllers;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EventsController;
+use App\Http\Controllers\InscriptionController;
 
 
 
@@ -77,6 +78,10 @@ Route::get(
   '/events/{event}/participants',
   [EventsController::class, 'showParticipants']
 )->name('event.participants');
+
+Route::post('/inscriptions/{id}/toggle', [InscriptionController::class, 'toggle'])->name('inscriptions.toggle');
+Route::delete('/inscriptions/{id}', [InscriptionController::class, 'destroy'])->name('inscriptions.destroy');
+
 
 
 // Route::get('/events/participants', function () {

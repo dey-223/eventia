@@ -4,62 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Inscription;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InscriptionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Basculer le statut “confirmé” / “annulé” (ou “présent” / “absent”).
      */
-    public function index()
+    public function toggle($id)
     {
-        //
+        $insc = Inscription::findOrFail($id);
+        // Exemple : si “confirmé” devient “annulé”, sinon on remet “confirmé”
+        $insc->statut = $insc->statut === 'confirmé' ? 'annulé' : 'confirmé';
+        $insc->save();
+
+        return redirect()->back()->with('success', 'Statut mis à jour');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Supprimer une inscription.
      */
-    public function create()
+    public function destroy($id)
     {
-        //
-    }
+        $insc = Inscription::findOrFail($id);
+        $insc->delete();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Inscription $inscription)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Inscription $inscription)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Inscription $inscription)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Inscription $inscription)
-    {
-        //
+        return redirect()->back()->with('success', 'Inscription supprimée');
     }
 }

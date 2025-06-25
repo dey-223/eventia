@@ -58,34 +58,7 @@ const EventsList: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const allEvents = [...
         props.events || [],
-
-    {
-        id: -1,
-        title: 'Conférence Annuelle Tech 2025',
-        start_date: '2025-06-15T09:00:00',
-        end_date: '2025-06-15T17:00:00',
-        location: 'Paris, France',
-        max_participants: 500,
-        registered: 342,
-        statut: 'planifié',
-        event_type: 'conférence',
-        is_mock: true,
-        id_organisateur: null
-    },
-    {
-        id: -2,
-        title: 'Atelier Design ',
-        start_date: '2025-07-10T14:00:00',
-        end_date: '2025-07-10T18:00:00',
-        location: 'Lyon, France',
-        max_participants: 50,
-        registered: 35,
-        statut: 'en_cours',
-        event_type: 'workshop',
-        is_mock: true,
-        id_organisateur: null
-
-    }
+        // Ajout de quelques événements  mock pour la démonstration
     ];
 
 

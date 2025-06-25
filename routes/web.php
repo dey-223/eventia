@@ -40,7 +40,7 @@ Route::get('/events', function(){
 })->name('events');
 // 
 Route::get('/events', [EventsController::class, 'showEvents']);
-// ajouter par moi recement
+
 
 
 Route::get('/about', function () {

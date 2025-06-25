@@ -3,13 +3,23 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Billet;
 
 class Inscription extends Model
 {
     
     protected $table = 'inscriptions';
     protected $primaryKey = 'id_inscription';
-    protected $fillable = ['id_event', 'id_user', 'statut', 'commentaire'];
+    protected $fillable = [
+    'id_event',
+    'id_user',
+    'statut',
+    'commentaire',
+    'nom',
+    'email',
+    'telephone',
+    'entreprise'
+    ];
 
     public function evenement()
     {

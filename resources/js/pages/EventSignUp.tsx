@@ -971,7 +971,8 @@ const EventSignup: React.FC = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Link href={route('event.participants', { event: event.id_event })} className="w-full">
+              <Link href={route('event.participants', { id: event.id_event })} className="w-full">
+
                 <Button variant="outline" className="w-full">
                   Voir les participants
                 </Button>

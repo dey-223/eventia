@@ -235,9 +235,9 @@
 
 // export default Events;
 
-
 import React, { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Users, MapPin, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -258,26 +258,25 @@ interface Event {
   description: string;
 }
 
-const Events = () => {
-  const { events } = usePage().props as { events: Event[] };
+const Events: React.FC = () => {
+  const { events } = usePage<{ events: Event[] }>().props;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
-  };
 
   const filteredEvents = events.filter(event => {
     const matchesSearch =
       event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.location.toLowerCase().includes(searchTerm.toLowerCase());
-console.log("event", event);
+
     const matchesCategory =
       categoryFilter === 'all' || event.category.toLowerCase() === categoryFilter.toLowerCase();
 
@@ -286,12 +285,8 @@ console.log("event", event);
 
   const checkIfRegistered = (eventId: number) => {
     const registeredEvents = localStorage.getItem('registeredEvents');
-    if (registeredEvents) {
-      return JSON.parse(registeredEvents).includes(eventId);
-    }
-    return false;
+    return registeredEvents ? JSON.parse(registeredEvents).includes(eventId) : false;
   };
-  
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -322,10 +317,7 @@ console.log("event", event);
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <Select
-              value={categoryFilter}
-              onValueChange={setCategoryFilter}
-            >
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[180px]">
                 <Filter className="mr-2 h-4 w-4" />
                 <SelectValue placeholder="Catégorie" />
@@ -364,28 +356,27 @@ console.log("event", event);
                       </div>
                       <div className="flex items-center gap-2 text-gray-600">
                         <Users className="h-4 w-4" />
-                        <span>{event.participantsCount}/{event.maxParticipants} participants</span>
+                        <span>
+                          {event.participantsCount}/{event.maxParticipants} participants
+                        </span>
                       </div>
                     </div>
                   </CardContent>
 
                   <CardFooter className="flex gap-4">
-                    <Link href="/events/participants" className="flex-1">
-                      <Button variant="outline" className="w-full">Voir les participants</Button>
+                    <Link href={route('event.participants', { event: event.id_event })} className="flex-1">
+                      <Button variant="outline" className="w-full">
+                        Voir les participants
+                      </Button>
                     </Link>
                     {checkIfRegistered(event.id_event) ? (
                       <Button className="w-full flex-1" variant="secondary" disabled>
                         Déjà inscrit
                       </Button>
-
                     ) : (
-                      
                       <Link href={`/events/inscriptions/${event.id_event}`} className="flex-1">
                         <Button className="w-full">S'inscrire</Button>
                       </Link>
-                      
-
-                      
                     )}
                   </CardFooter>
                 </Card>
@@ -404,3 +395,4 @@ console.log("event", event);
 };
 
 export default Events;
+

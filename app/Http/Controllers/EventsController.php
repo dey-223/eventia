@@ -167,59 +167,128 @@ public function showRegistrationForm($id)
     return Inertia::render('EventSignUp', ['event' => $event]);
 }
 
+// public function register(Request $request, $id)
+// {
+//     // 1. Valider les données envoyées (ici que l'utilisateur accepte les CGU)
+//     $request->validate([
+//         'name'        => 'required|string|min:2',
+//         'email'       => 'required|email',
+//         'acceptTerms' => 'accepted',
+//         // ajoutez d'autres règles si besoin
+//     ]);
+
+//     // 2. Vérifier qu’il n’est pas déjà inscrit
+//     if (Inscription::where('id_event', $id)->where('id_user', Auth::id())->exists()) {
+//         return back()->withErrors(['already_registered' => 'Vous êtes déjà inscrit à cet événement.']);
+//     }
+
+//     // 3. Créer l’inscription
+//     Inscription::create([
+//         'id_event'       => $id,
+//         'id_user'        => Auth::id(),
+//         'statut'         => 'confirmé',
+//         'commentaire'    => $request->input('commentaire'),
+//     ]);
+
+//     // 4. Rediriger vers la liste des participants avec message de succès
+//     return redirect()
+//         ->route('event.participants', ['event' => $id])
+//         ->with('success', 'Inscription réussie !');
+// }
+
+
 public function register(Request $request, $id)
 {
-    // 1. Valider les données envoyées (ici que l'utilisateur accepte les CGU)
+    $event = Events::findOrFail($id);
+
     $request->validate([
-        'name'        => 'required|string|min:2',
-        'email'       => 'required|email',
-        'acceptTerms' => 'accepted',
-        // ajoutez d'autres règles si besoin
+        'name' => 'required|string|min:2',
+        'email' => 'required|email',
+        'phone' => 'nullable|string|min:10',
+        'company' => 'nullable|string|max:100',
+        'comment' => 'nullable|string|max:255',
+        'acceptTerms' => 'accepted'
     ]);
 
-    // 2. Vérifier qu’il n’est pas déjà inscrit
-    if (Inscription::where('id_event', $id)->where('id_user', Auth::id())->exists()) {
-        return back()->withErrors(['already_registered' => 'Vous êtes déjà inscrit à cet événement.']);
-    }
+    // vérifier si l'email est déjà inscrit à cet event
+    $exists = Inscription::where('id_event', $id)
+    ->where('email', $request->email)
+    ->exists();
 
-    // 3. Créer l’inscription
+if ($exists) {
+    return back()->withErrors([
+        'already_registered' => 'Une inscription avec cet email existe déjà pour cet événement.'
+    ]);
+}
+
     Inscription::create([
-        'id_event'       => $id,
-        'id_user'        => Auth::id(),
-        'statut'         => 'confirmé',
-        'commentaire'    => $request->input('commentaire'),
-    ]);
+    'id_event' => $id,
+    'nom' => $request->name,
+    'email' => $request->email,
+    'telephone' => $request->phone,
+    'entreprise' => $request->company,
+    'commentaire' => $request->comment,
+    'statut' => 'confirmé',
+]);
 
-    // 4. Rediriger vers la liste des participants avec message de succès
-    return redirect()
-        ->route('event.participants', ['event' => $id])
+    return redirect()->route('event.participants', ['event' => $id])
         ->with('success', 'Inscription réussie !');
 }
 
 
+// public function showParticipants($event)
+// {
+//     $event = Events::withCount('inscriptions')->findOrFail($event);
+//     $participants = Inscription::with('utilisateur')
+//         ->where('id_event', $event->id_event)
+//         ->get()
+//         ->map(fn($insc) => [
+//             'id'               => $insc->id_inscription,
+//             'name'             => $insc->utilisateur->name,
+//             'email'            => $insc->utilisateur->email,
+//             'registrationDate' => $insc->date_inscription,
+//             'company'          => $insc->commentaire, 
+//             'attended'         => $insc->statut === 'confirmé',
+//         ]);
 
-public function showParticipants($event)
+//     return Inertia::render('EventParticipants', [
+//         'event'        => $event,
+//         'participants' => $participants,
+//     ]);
+// }
+
+
+public function showParticipants($id)
 {
-    $event = Events::withCount('inscriptions')->findOrFail($event);
-    $participants = Inscription::with('utilisateur')
-        ->where('id_event', $event->id_event)
-        ->get()
-        ->map(fn($insc) => [
-            'id'               => $insc->id_inscription,
-            'name'             => $insc->utilisateur->name,
-            'email'            => $insc->utilisateur->email,
-            'registrationDate' => $insc->date_inscription,
-            'company'          => $insc->commentaire, 
-            'attended'         => $insc->statut === 'confirmé',
-        ]);
+    // Récupère l'événement
+    $event = Events::findOrFail($id);
+
+    // Récupère les inscriptions associées
+    $participants = Inscription::where('id_event', $id)->get();
 
     return Inertia::render('EventParticipants', [
-        'event'        => $event,
-        'participants' => $participants,
+        'event' => [
+            'id' => $event->id_event,
+            'title' => $event->title,
+            'date' => $event->start_date,
+            'location' => $event->location,
+            'participantsCount' => $participants->count(),
+            'maxParticipants' => $event->max_participants,
+            'category' => $event->event_type,
+            'description' => $event->description,
+        ],
+        'participants' => $participants->map(function ($insc) {
+            return [
+                'id' => $insc->id_inscription,
+                'name' => $insc->nom,
+                'email' => $insc->email,
+                'registrationDate' => $insc->created_at,
+                'company' => $insc->entreprise ?? '-',
+                'attended' => $insc->statut === 'confirmé',
+            ];
+        }),
     ]);
 }
-
-
  }
 
  
